@@ -180,6 +180,11 @@ ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="000a", MODE="664", GROUP="plugdev"
 # lsusb: "10c4:ea67 Cygnal Integrated Products, Inc."
 ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea67", MODE="664", GROUP="plugdev"
 
+# PoLabs PoScope mega1+
+# http://www.poscope.com/poscope-mega1-bundle-82
+# lsusb: "1dc3:04b1" (no string for the vendor name available)
+ATTRS{idVendor}=="1dc3", ATTRS{idProduct}=="04b1", MODE="664", GROUP="plugdev"
+
 # QuantAsylum QA100
 # http://www.quantasylum.com/content/Products/QA100.aspx
 # lsusb: "16c0:4e21 VOTI"
