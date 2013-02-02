@@ -33,6 +33,7 @@ SUBDIRS = \
 	link-mso19 \
 	nexus-osciprime \
 	openbench-logic-sniffer \
+	polabs-poscope-mega1 \
 	rigol-ds1xx2 \
 	serial-dmm \
 	tondaj-sl-814 \
@@ -97,6 +98,10 @@ endif
 
 if LA_OLS
 libsigrokhardware_la_LIBADD += openbench-logic-sniffer/libsigrokhwols.la
+endif
+
+if HW_POLABS_POSCOPE_MEGA1
+libsigrokhardware_la_LIBADD += polabs-poscope-mega1/libsigrok_hw_polabs_poscope_mega1.la
 endif
 
 if HW_RIGOL_DS1XX2

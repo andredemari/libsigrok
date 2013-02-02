@@ -198,6 +198,15 @@ if test "x$LA_OLS" = "xyes"; then
 	AC_DEFINE(HAVE_LA_OLS, 1, [OpenBench Logic Sniffer (OLS) support])
 fi
 
+AC_ARG_ENABLE(polabs-poscope-mega1, AC_HELP_STRING([--enable-polabs-poscope-mega1],
+	[enable PoLabs PoScope mega1+ support [default=yes]]),
+	[HW_POLABS_POSCOPE_MEGA1="$enableval"],
+	[HW_POLABS_POSCOPE_MEGA1=yes])
+AM_CONDITIONAL(HW_POLABS_POSCOPE_MEGA1, test x$HW_POLABS_POSCOPE_MEGA1 = xyes)
+if test "x$HW_POLABS_POSCOPE_MEGA1" = "xyes"; then
+	AC_DEFINE(HAVE_HW_POLABS_POSCOPE_MEGA1, 1, [PoLabs PoScope mega1+ support])
+fi
+
 AC_ARG_ENABLE(rigol-ds1xx2, AC_HELP_STRING([--enable-rigol-ds1xx2],
 	[enable Rigol DS1xx2 support [default=yes]]),
 	[HW_RIGOL_DS1XX2="$enableval"],
@@ -380,6 +389,7 @@ AC_CONFIG_FILES([Makefile version.h hardware/Makefile
 		 hardware/common/Makefile
 		 hardware/lascar-el-usb/Makefile
 		 hardware/nexus-osciprime/Makefile
+		 hardware/polabs-poscope-mega1/Makefile
 		 hardware/rigol-ds1xx2/Makefile
 		 hardware/tondaj-sl-814/Makefile
 		 hardware/victor-dmm/Makefile
@@ -437,6 +447,7 @@ echo "  - Lascar EL-USB................... $HW_LASCAR_EL_USB"
 echo "  - Link MSO-19..................... $LA_LINK_MSO19"
 echo "  - Nexus Osciprime................. $HW_NEXUS_OSCIPRIME"
 echo "  - Openbench Logic Sniffer......... $LA_OLS"
+echo "  - PoLabs PoScope mega1+........... $HW_POLABS_POSCOPE_MEGA1"
 echo "  - Rigol DS1xx2.................... $HW_RIGOL_DS1XX2"
 echo "  - Serial DMM...................... $HW_SERIAL_DMM"
 echo "  - Tondaj SL-814................... $HW_TONDAJ_SL_814"
