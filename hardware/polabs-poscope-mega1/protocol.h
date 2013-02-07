@@ -36,6 +36,16 @@
 
 /** Private, per-device-instance driver context. */
 struct dev_context {
+	struct sr_usb_dev_inst *usb;
+
+	int dev_state;
+
+	/** The current sampling rate (in Hertz). */
+	uint64_t samplerate;
+
+	/** The current frequency selector (derived from samplerate). */
+	uint64_t freq_selector;
+
 	/** The current sampling limit (in number of samples). */
 	uint64_t limit_samples;
 
@@ -46,9 +56,21 @@ struct dev_context {
 	void *cb_data;
 
 	/** The current number of already received samples. */
-	uint64_t num_samples;
+	int64_t num_samples;
+
+	GSList *enabled_probes;
+	gboolean ch1_enabled;
+	gboolean ch2_enabled;
+
+	/** USB transfer structures. */
+	struct libusb_transfer *transfers[2];
 };
 
-SR_PRIV int polabs_poscope_mega1_receive_data(int fd, int revents, void *cb_data);
+extern SR_PRIV const uint64_t polabs_poscope_mega1_samplerates[];
+
+SR_PRIV int polabs_poscope_mega1_open(const struct sr_dev_inst *sdi);
+SR_PRIV int polabs_poscope_mega1_set_samplerate(const struct sr_dev_inst *sdi, uint64_t samplerate);
+SR_PRIV int polabs_poscope_mega1_start(struct dev_context *devc, void *cb_data);
+SR_PRIV void polabs_poscope_mega1_stop(struct dev_context *devc);
 
 #endif
