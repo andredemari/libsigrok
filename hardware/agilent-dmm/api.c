@@ -188,11 +188,7 @@ static GSList *hw_scan(GSList *options)
 
 static GSList *hw_dev_list(void)
 {
-	struct drv_context *drvc;
-
-	drvc = di->priv;
-
-	return drvc->instances;
+	return ((struct drv_context *)(di->priv))->instances;
 }
 
 static int hw_dev_open(struct sr_dev_inst *sdi)
@@ -216,10 +212,7 @@ static int hw_dev_close(struct sr_dev_inst *sdi)
 {
 	struct dev_context *devc;
 
-	if (!(devc = sdi->priv)) {
-		sr_err("sdi->priv was NULL.");
-		return SR_ERR_BUG;
-	}
+	devc = sdi->priv;
 
 	if (devc->serial && devc->serial->fd != -1) {
 		serial_close(devc->serial);

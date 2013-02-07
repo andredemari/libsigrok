@@ -22,6 +22,7 @@ SUBDIRS = \
 	agilent-dmm \
 	alsa \
 	asix-sigma \
+	brymen-dmm \
 	chronovu-la8 \
 	colead-slm \
 	common \
@@ -31,6 +32,7 @@ SUBDIRS = \
 	hantek-dso \
 	lascar-el-usb \
 	link-mso19 \
+	mic-985xx \
 	nexus-osciprime \
 	openbench-logic-sniffer \
 	polabs-poscope-mega1 \
@@ -58,6 +60,10 @@ endif
 
 if LA_ASIX_SIGMA
 libsigrokhardware_la_LIBADD += asix-sigma/libsigrokhwasixsigma.la
+endif
+
+if HW_BRYMEN_DMM
+libsigrokhardware_la_LIBADD += brymen-dmm/libsigrok_hw_brymen_dmm.la
 endif
 
 if LA_CHRONOVU_LA8
@@ -90,6 +96,10 @@ endif
 
 if LA_LINK_MSO19
 libsigrokhardware_la_LIBADD += link-mso19/libsigrokhwlinkmso19.la
+endif
+
+if HW_MIC_985XX
+libsigrokhardware_la_LIBADD += mic-985xx/libsigrok_hw_mic_985xx.la
 endif
 
 if HW_NEXUS_OSCIPRIME

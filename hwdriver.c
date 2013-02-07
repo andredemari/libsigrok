@@ -83,6 +83,9 @@ static struct sr_config_info sr_config_info_data[] = {
 };
 
 /** @cond PRIVATE */
+#ifdef HAVE_HW_BRYMEN_DMM
+extern SR_PRIV struct sr_dev_driver brymen_bm857_driver_info;
+#endif
 #ifdef HAVE_HW_COLEAD_SLM
 extern SR_PRIV struct sr_dev_driver colead_slm_driver_info;
 #endif
@@ -91,6 +94,9 @@ extern SR_PRIV struct sr_dev_driver demo_driver_info;
 #endif
 #ifdef HAVE_HW_LASCAR_EL_USB
 extern SR_PRIV struct sr_dev_driver lascar_el_usb_driver_info;
+#endif
+#ifdef HAVE_HW_MIC_985XX
+extern SR_PRIV struct sr_dev_driver mic_98583_driver_info;
 #endif
 #ifdef HAVE_HW_NEXUS_OSCIPRIME
 extern SR_PRIV struct sr_dev_driver nexus_osciprime_driver_info;
@@ -160,6 +166,9 @@ extern SR_PRIV struct sr_dev_driver voltcraft_vc820_driver_info;
 /** @endcond */
 
 static struct sr_dev_driver *drivers_list[] = {
+#ifdef HAVE_HW_BRYMEN_DMM
+	&brymen_bm857_driver_info,
+#endif
 #ifdef HAVE_HW_COLEAD_SLM
 	&colead_slm_driver_info,
 #endif
@@ -168,6 +177,9 @@ static struct sr_dev_driver *drivers_list[] = {
 #endif
 #ifdef HAVE_HW_LASCAR_EL_USB
 	&lascar_el_usb_driver_info,
+#endif
+#ifdef HAVE_HW_MIC_985XX
+	&mic_98583_driver_info,
 #endif
 #ifdef HAVE_HW_NEXUS_OSCIPRIME
 	&nexus_osciprime_driver_info,

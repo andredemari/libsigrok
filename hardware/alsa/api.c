@@ -62,11 +62,7 @@ static GSList *hw_scan(GSList *options)
 
 static GSList *hw_dev_list(void)
 {
-	struct drv_context *drvc;
-
-	drvc = di->priv;
-
-	return drvc->instances;
+	return ((struct drv_context *)(di->priv))->instances;
 }
 
 static int hw_dev_open(struct sr_dev_inst *sdi)
@@ -106,8 +102,6 @@ static int hw_dev_close(struct sr_dev_inst *sdi)
 	struct dev_context *devc;
 
 	devc = sdi->priv;
-
-	sr_dbg("Closing device.");
 
 	if (devc->capture_handle) {
 		sr_dbg("Closing PCM device.");

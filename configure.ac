@@ -108,6 +108,15 @@ if test "x$LA_ASIX_SIGMA" = "xyes"; then
 	AC_DEFINE(HAVE_LA_ASIX_SIGMA, 1, [ASIX SIGMA/SIGMA2 support])
 fi
 
+AC_ARG_ENABLE(brymen-dmm, AC_HELP_STRING([--enable-brymen-dmm],
+	[enable Brymen DMM support [default=yes]]),
+	[HW_BRYMEN_DMM="$enableval"],
+	[HW_BRYMEN_DMM=yes])
+AM_CONDITIONAL(HW_BRYMEN_DMM, test x$HW_BRYMEN_DMM = xyes)
+if test "x$HW_BRYMEN_DMM" = "xyes"; then
+	AC_DEFINE(HAVE_HW_BRYMEN_DMM, 1, [brymen-dmm support])
+fi
+
 AC_ARG_ENABLE(chronovu-la8, AC_HELP_STRING([--enable-chronovu-la8],
 	[enable ChronoVu LA8 support [default=yes]]),
 	[LA_CHRONOVU_LA8="$enableval"],
@@ -178,6 +187,15 @@ AC_ARG_ENABLE(link-mso19, AC_HELP_STRING([--enable-link-mso19],
 AM_CONDITIONAL(LA_LINK_MSO19, test x$LA_LINK_MSO19 = xyes)
 if test "x$LA_LINK_MSO19" = "xyes"; then
 	AC_DEFINE(HAVE_LA_LINK_MSO19, 1, [Link Instruments MSO-19 support])
+fi
+
+AC_ARG_ENABLE(mic-985xx, AC_HELP_STRING([--enable-mic-985xx],
+	[enable MIC 985xx support [default=yes]]),
+	[HW_MIC_985XX="$enableval"],
+	[HW_MIC_985XX=yes])
+AM_CONDITIONAL(HW_MIC_985XX, test x$HW_MIC_985XX = xyes)
+if test "x$HW_MIC_985XX" = "xyes"; then
+	AC_DEFINE(HAVE_HW_MIC_985XX, 1, [MIC 985xx support])
 fi
 
 AC_ARG_ENABLE(nexus-osciprime, AC_HELP_STRING([--enable-nexus-osciprime],
@@ -384,10 +402,12 @@ AC_CONFIG_FILES([Makefile version.h hardware/Makefile
 		 hardware/agilent-dmm/Makefile
 		 hardware/alsa/Makefile
 		 hardware/asix-sigma/Makefile
+		 hardware/brymen-dmm/Makefile
 		 hardware/chronovu-la8/Makefile
 		 hardware/colead-slm/Makefile
 		 hardware/common/Makefile
 		 hardware/lascar-el-usb/Makefile
+		 hardware/mic-985xx/Makefile
 		 hardware/nexus-osciprime/Makefile
 		 hardware/polabs-poscope-mega1/Makefile
 		 hardware/rigol-ds1xx2/Makefile
@@ -437,6 +457,7 @@ echo -e "\nEnabled hardware drivers:\n"
 echo "  - Agilent DMM..................... $HW_AGILENT_DMM"
 echo "  - ALSA............................ $HW_ALSA"
 echo "  - ASIX SIGMA/SIGMA2............... $LA_ASIX_SIGMA"
+echo "  - Brymen DMM...................... $HW_BRYMEN_DMM"
 echo "  - ChronoVu LA8.................... $LA_CHRONOVU_LA8"
 echo "  - Colead SLM...................... $HW_COLEAD_SLM"
 echo "  - Demo driver..................... $LA_DEMO"
@@ -445,6 +466,7 @@ echo "  - fx2lafw (for FX2 LAs)........... $LA_FX2LAFW"
 echo "  - Hantek DSO...................... $HW_HANTEK_DSO"
 echo "  - Lascar EL-USB................... $HW_LASCAR_EL_USB"
 echo "  - Link MSO-19..................... $LA_LINK_MSO19"
+echo "  - MIC 985xx....................... $HW_MIC_985XX"
 echo "  - Nexus Osciprime................. $HW_NEXUS_OSCIPRIME"
 echo "  - Openbench Logic Sniffer......... $LA_OLS"
 echo "  - PoLabs PoScope mega1+........... $HW_POLABS_POSCOPE_MEGA1"

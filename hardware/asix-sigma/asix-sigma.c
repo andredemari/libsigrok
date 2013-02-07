@@ -513,11 +513,7 @@ free:
 
 static GSList *hw_dev_list(void)
 {
-	struct drv_context *drvc;
-
-	drvc = di->priv;
-
-	return drvc->instances;
+	return ((struct drv_context *)(di->priv))->instances;
 }
 
 static int upload_firmware(int firmware_idx, struct dev_context *devc)
@@ -756,10 +752,7 @@ static int hw_dev_close(struct sr_dev_inst *sdi)
 {
 	struct dev_context *devc;
 
-	if (!(devc = sdi->priv)) {
-		sr_err("%s: sdi->priv was NULL", __func__);
-		return SR_ERR_BUG;
-	}
+	devc = sdi->priv;
 
 	/* TODO */
 	if (sdi->status == SR_ST_ACTIVE)

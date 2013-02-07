@@ -180,11 +180,7 @@ err_free_nothing:
 
 static GSList *hw_dev_list(void)
 {
-	struct drv_context *drvc;
-
-	drvc = di->priv;
-
-	return drvc->instances;
+	return ((struct drv_context *)(di->priv))->instances;
 }
 
 static int hw_dev_open(struct sr_dev_inst *sdi)
@@ -244,12 +240,7 @@ static int hw_dev_close(struct sr_dev_inst *sdi)
 {
 	struct dev_context *devc;
 
-	if (!(devc = sdi->priv)) {
-		sr_err("%s: sdi->priv was NULL.", __func__);
-		return SR_ERR_BUG;
-	}
-
-	sr_dbg("Closing device.");
+	devc = sdi->priv;
 
 	if (sdi->status == SR_ST_ACTIVE) {
 		sr_dbg("Status ACTIVE, closing device.");
@@ -260,7 +251,6 @@ static int hw_dev_close(struct sr_dev_inst *sdi)
 
 	sdi->status = SR_ST_INACTIVE;
 
-	sr_dbg("Freeing sample buffer.");
 	g_free(devc->final_buf);
 
 	return SR_OK;
