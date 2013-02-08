@@ -323,8 +323,6 @@ static int config_list(int key, const void **data, const struct sr_dev_inst *sdi
 static int hw_dev_acquisition_start(const struct sr_dev_inst *sdi,
 		void *cb_data)
 {
-	struct sr_datafeed_packet packet;
-	struct sr_datafeed_header header;
 	struct dev_context *devc;
 
 	if (!(devc = sdi->priv)) {
@@ -332,17 +330,10 @@ static int hw_dev_acquisition_start(const struct sr_dev_inst *sdi,
 		return SR_ERR_BUG;
 	}
 
-	sr_dbg("Starting acquisition.");
-
 	devc->cb_data = cb_data;
 
 	/* Send header packet to the session bus. */
-	sr_dbg("Sending SR_DF_HEADER.");
-	packet.type = SR_DF_HEADER;
-	packet.payload = (uint8_t *)&header;
-	header.feed_version = 1;
-	gettimeofday(&header.starttime, NULL);
-	sr_session_send(devc->cb_data, &packet);
+	std_session_send_df_header(cb_data, DRIVER_LOG_DOMAIN);
 
 	/* Poll every 100ms, or whenever some data comes in. */
 	sr_source_add(devc->serial->fd, G_IO_IN, 50, fluke_receive_data, (void *)sdi);
@@ -392,6 +383,7 @@ SR_PRIV struct sr_dev_driver flukedmm_driver_info = {
 	.scan = hw_scan,
 	.dev_list = hw_dev_list,
 	.dev_clear = clear_instances,
+	.config_get = NULL,
 	.config_set = config_set,
 	.config_list = config_list,
 	.dev_open = hw_dev_open,

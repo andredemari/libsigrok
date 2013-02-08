@@ -940,7 +940,7 @@ static int decode_chunk_ts(uint8_t *buf, uint16_t *lastts,
 			logic.length = tosend * sizeof(uint16_t);
 			logic.unitsize = 2;
 			logic.data = samples + sent;
-			sr_session_send(devc->session_dev_id, &packet);
+			sr_session_send(devc->cb_data, &packet);
 
 			sent += tosend;
 		}
@@ -983,7 +983,7 @@ static int decode_chunk_ts(uint8_t *buf, uint16_t *lastts,
 				logic.length = tosend * sizeof(uint16_t);
 				logic.unitsize = 2;
 				logic.data = samples;
-				sr_session_send(devc->session_dev_id, &packet);
+				sr_session_send(devc->cb_data, &packet);
 
 				sent += tosend;
 			}
@@ -991,7 +991,7 @@ static int decode_chunk_ts(uint8_t *buf, uint16_t *lastts,
 			/* Only send trigger if explicitly enabled. */
 			if (devc->use_triggers) {
 				packet.type = SR_DF_TRIGGER;
-				sr_session_send(devc->session_dev_id, &packet);
+				sr_session_send(devc->cb_data, &packet);
 			}
 		}
 
@@ -1004,7 +1004,7 @@ static int decode_chunk_ts(uint8_t *buf, uint16_t *lastts,
 			logic.length = tosend * sizeof(uint16_t);
 			logic.unitsize = 2;
 			logic.data = samples + sent;
-			sr_session_send(devc->session_dev_id, &packet);
+			sr_session_send(devc->cb_data, &packet);
 		}
 
 		*lastsample = samples[n - 1];
@@ -1052,7 +1052,7 @@ static int receive_data(int fd, int revents, void *cb_data)
 		if (devc->state.chunks_downloaded >= numchunks) {
 			/* End of samples. */
 			packet.type = SR_DF_END;
-			sr_session_send(devc->session_dev_id, &packet);
+			sr_session_send(devc->cb_data, &packet);
 
 			devc->state.state = SIGMA_IDLE;
 
@@ -1266,8 +1266,6 @@ static int hw_dev_acquisition_start(const struct sr_dev_inst *sdi,
 		void *cb_data)
 {
 	struct dev_context *devc;
-	struct sr_datafeed_packet *packet;
-	struct sr_datafeed_header *header;
 	struct clockselect_50 clockselect;
 	int frac, triggerpin, ret;
 	uint8_t triggerselect = 0;
@@ -1359,30 +1357,13 @@ static int hw_dev_acquisition_start(const struct sr_dev_inst *sdi,
 	gettimeofday(&devc->start_tv, 0);
 	sigma_set_register(WRITE_MODE, 0x0d, devc);
 
-	devc->session_dev_id = cb_data;
-
-	if (!(packet = g_try_malloc(sizeof(struct sr_datafeed_packet)))) {
-		sr_err("%s: packet malloc failed.", __func__);
-		return SR_ERR_MALLOC;
-	}
-
-	if (!(header = g_try_malloc(sizeof(struct sr_datafeed_header)))) {
-		sr_err("%s: header malloc failed.", __func__);
-		return SR_ERR_MALLOC;
-	}
+	devc->cb_data = cb_data;
 
 	/* Send header packet to the session bus. */
-	packet->type = SR_DF_HEADER;
-	packet->payload = header;
-	header->feed_version = 1;
-	gettimeofday(&header->starttime, NULL);
-	sr_session_send(devc->session_dev_id, packet);
+	std_session_send_df_header(cb_data, DRIVER_LOG_DOMAIN);
 
 	/* Add capture source. */
 	sr_source_add(0, G_IO_IN, 10, receive_data, (void *)sdi);
-
-	g_free(header);
-	g_free(packet);
 
 	devc->state.state = SIGMA_CAPTURE;
 

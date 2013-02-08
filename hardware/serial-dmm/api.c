@@ -410,16 +410,12 @@ static int config_list(int key, const void **data, const struct sr_dev_inst *sdi
 static int hw_dev_acquisition_start(const struct sr_dev_inst *sdi,
 				    void *cb_data, int dmm)
 {
-	struct sr_datafeed_packet packet;
-	struct sr_datafeed_header header;
 	struct dev_context *devc;
 
 	if (!(devc = sdi->priv)) {
 		sr_err("sdi->priv was NULL.");
 		return SR_ERR_BUG;
 	}
-
-	sr_dbg("Starting acquisition.");
 
 	devc->cb_data = cb_data;
 
@@ -432,12 +428,7 @@ static int hw_dev_acquisition_start(const struct sr_dev_inst *sdi,
 	devc->starttime = g_get_monotonic_time();
 
 	/* Send header packet to the session bus. */
-	sr_dbg("Sending SR_DF_HEADER.");
-	packet.type = SR_DF_HEADER;
-	packet.payload = (uint8_t *)&header;
-	header.feed_version = 1;
-	gettimeofday(&header.starttime, NULL);
-	sr_session_send(devc->cb_data, &packet);
+	std_session_send_df_header(cb_data, DRIVER_LOG_DOMAIN);
 
 	/* Poll every 50ms, or whenever some data comes in. */
 	sr_source_add(devc->serial->fd, G_IO_IN, 50,
@@ -504,6 +495,7 @@ SR_PRIV struct sr_dev_driver ID##_driver_info = { \
 	.scan = hw_scan_##ID_UPPER, \
 	.dev_list = hw_dev_list_##ID_UPPER, \
 	.dev_clear = clear_instances_##ID_UPPER, \
+	.config_get = NULL, \
 	.config_set = config_set, \
 	.config_list = config_list, \
 	.dev_open = hw_dev_open, \

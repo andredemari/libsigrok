@@ -688,7 +688,7 @@ static void finish_acquisition(struct dev_context *devc)
 
 	/* Terminate session. */
 	packet.type = SR_DF_END;
-	sr_session_send(devc->session_dev_id, &packet);
+	sr_session_send(devc->cb_data, &packet);
 
 	/* Remove fds from polling. */
 	lupfd = libusb_get_pollfds(drvc->sr_ctx->libusb_ctx);
@@ -820,7 +820,7 @@ static void receive_transfer(struct libusb_transfer *transfer)
 					 */
 					packet.type = SR_DF_TRIGGER;
 					packet.payload = NULL;
-					sr_session_send(devc->session_dev_id, &packet);
+					sr_session_send(devc->cb_data, &packet);
 
 					/*
 					 * Send the samples that triggered it,
@@ -831,7 +831,7 @@ static void receive_transfer(struct libusb_transfer *transfer)
 					logic.unitsize = sizeof(*devc->trigger_buffer);
 					logic.length = devc->trigger_stage * logic.unitsize;
 					logic.data = devc->trigger_buffer;
-					sr_session_send(devc->session_dev_id, &packet);
+					sr_session_send(devc->cb_data, &packet);
 
 					devc->trigger_stage = TRIGGER_FIRED;
 					break;
@@ -861,7 +861,7 @@ static void receive_transfer(struct libusb_transfer *transfer)
 		logic.length = transfer->actual_length - trigger_offset_bytes;
 		logic.unitsize = sample_width;
 		logic.data = cur_buf + trigger_offset_bytes;
-		sr_session_send(devc->session_dev_id, &packet);
+		sr_session_send(devc->cb_data, &packet);
 
 		devc->num_samples += cur_sample_count;
 		if (devc->limit_samples &&
@@ -923,8 +923,6 @@ static unsigned int get_timeout(struct dev_context *devc)
 static int hw_dev_acquisition_start(const struct sr_dev_inst *sdi,
 		void *cb_data)
 {
-	struct sr_datafeed_packet packet;
-	struct sr_datafeed_header header;
 	struct dev_context *devc;
 	struct drv_context *drvc;
 	struct libusb_transfer *transfer;
@@ -945,7 +943,7 @@ static int hw_dev_acquisition_start(const struct sr_dev_inst *sdi,
 		return SR_ERR;
 	}
 
-	devc->session_dev_id = cb_data;
+	devc->cb_data = cb_data;
 	devc->num_samples = 0;
 	devc->empty_transfer_count = 0;
 
@@ -988,11 +986,8 @@ static int hw_dev_acquisition_start(const struct sr_dev_inst *sdi,
 			      timeout, receive_data, NULL);
 	free(lupfd); /* NOT g_free()! */
 
-	packet.type = SR_DF_HEADER;
-	packet.payload = &header;
-	header.feed_version = 1;
-	gettimeofday(&header.starttime, NULL);
-	sr_session_send(cb_data, &packet);
+	/* Send header packet to the session bus. */
+	std_session_send_df_header(cb_data, DRIVER_LOG_DOMAIN);
 
 	if ((ret = command_start_acquisition(devc->usb->devhdl,
 		devc->cur_samplerate, devc->sample_wide)) != SR_OK) {
