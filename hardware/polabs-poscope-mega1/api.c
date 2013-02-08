@@ -308,13 +308,10 @@ static void setup_enabled_probes(const struct sr_dev_inst *sdi)
 
 	g_slist_free(devc->enabled_probes);
 
-	devc->ch1_enabled = devc->ch2_enabled = FALSE;
 	for (l = sdi->probes, p = 0; l; l = l->next, p++) {
 		probe = l->data;
-		if (p == 0)
-			devc->ch1_enabled = probe->enabled;
-		else
-			devc->ch2_enabled = probe->enabled;
+		if (p < 2)
+			devc->analog_probe_enabled[p] = probe->enabled;
 		if (probe->enabled)
 			devc->enabled_probes = g_slist_append(devc->enabled_probes, probe);
 	}
@@ -356,6 +353,8 @@ static int hw_dev_acquisition_start(const struct sr_dev_inst *sdi, void *cb_data
 	struct drv_context *drvc;
 	struct dev_context *devc;
 	int ret;
+	struct sr_datafeed_packet packet;
+	struct sr_datafeed_header header;
 	unsigned int timeout;
 	unsigned int i;
 	const struct libusb_pollfd **lupfd;
@@ -370,6 +369,13 @@ static int hw_dev_acquisition_start(const struct sr_dev_inst *sdi, void *cb_data
 	if ((ret = polabs_poscope_mega1_start(devc, cb_data)) != SR_OK) {
 		return ret;
 	}
+
+	/* Send header packet to the session bus. */
+	packet.type = SR_DF_HEADER;
+	packet.payload = (unsigned char *)&header;
+	header.feed_version = 1;
+	gettimeofday(&header.starttime, NULL);
+	sr_session_send(cb_data, &packet);
 
 	timeout = 1010;
 	lupfd = libusb_get_pollfds(drvc->sr_ctx->libusb_ctx);

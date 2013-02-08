@@ -208,7 +208,7 @@ SR_PRIV void polabs_poscope_mega1_stop(struct dev_context *devc)
 
 	for (i = 0; i < ARRAY_SIZE(devc->transfers); i++) {
 		if (devc->transfers[i]) {
-			sr_dbg("Canceling tranfer %i.", i);
+			sr_dbg("Canceling transfer %i.", i);
 			libusb_cancel_transfer(devc->transfers[i]);
 		}
 	}
@@ -255,7 +255,7 @@ static void send_analog_packet(struct dev_context *devc, unsigned char *buf,
 	//float ch1, ch2, range;
 	int num_probes, data_offset, i;
 
-	//num_probes = (devc->ch1_enabled && devc->ch2_enabled) ? 2 : 1;
+	//num_probes = (devc->analog_probe_enabled[0] && devc->analog_probe_enabled[1]) ? 2 : 1;
 	num_probes = 1;
 	packet.type = SR_DF_ANALOG;
 	packet.payload = &analog;
@@ -276,14 +276,14 @@ static void send_analog_packet(struct dev_context *devc, unsigned char *buf,
 		 *
 		 * Voltage values are encoded as...
 		 */
-		if (devc->ch1_enabled) {
+		if (devc->analog_probe_enabled[0]) {
 			range = ((float)vdivs[devc->voltage_ch1].p / vdivs[devc->voltage_ch1].q) * 8;
 			ch1 = range / 255 * *(buf + i * 2 + 1);
 			/* Value is centered around 0V. */
 			ch1 -= range / 2;
 			analog.data[data_offset++] = ch1;
 		}
-		if (devc->ch2_enabled) {
+		if (devc->analog_probe_enabled[1]) {
 			range = ((float)vdivs[devc->voltage_ch2].p / vdivs[devc->voltage_ch2].q) * 8;
 			ch2 = range / 255 * *(buf + i * 2);
 			ch2 -= range / 2;
@@ -292,6 +292,7 @@ static void send_analog_packet(struct dev_context *devc, unsigned char *buf,
 #else
 		sample = buf[i * 3] << 16 | buf[i * 3 + 1] << 8 | buf[i * 3 + 2];
 		ch1 = ((float) (sample - 0x800000)) / 0x1000000 * 20.0;
+		sr_spew("My value is %f", ch1);
 		analog.data[data_offset++] = ch1;
 #endif
 	}
@@ -541,7 +542,7 @@ SR_PRIV int polabs_poscope_mega1_start(struct dev_context *devc, void *cb_data)
 		memset(cmdstring, 0, sizeof(cmdstring));
 		cmdstring[0] = CMD_OSC_ONOFF;
 		cmdstring[1] = (uint8_t) i + 1;
-		cmdstring[2] = 0x01;
+		cmdstring[2] = devc->analog_probe_enabled[i] ? 0x01: 0x00;
 		if ((ret = send_cmd(devc, cmdstring, 10)) != 0) {
 			sr_err("Failed CMD_OSC_ONOFF: %s.", libusb_error_name(ret));
 			return SR_ERR;

@@ -59,8 +59,7 @@ struct dev_context {
 	int64_t num_samples;
 
 	GSList *enabled_probes;
-	gboolean ch1_enabled;
-	gboolean ch2_enabled;
+	gboolean analog_probe_enabled[2];
 
 	/** USB transfer structures. */
 	struct libusb_transfer *transfers[2];
